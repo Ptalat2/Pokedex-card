@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="pokemon.css">
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <title>pokedex</title>
 </head>
 <body>
@@ -102,10 +103,16 @@
     <script>
          
         
+         let db = new Dexie("PokeDex");
+            db.version(1).stores({
+                Poke: `
+                    index,
+                    name,
+                    image,
+                    skill`,
+                });
 
-        
-
-
+    
         let url1 = "poke.json";
         document.querySelector("#scan").
     addEventListener('click', (e) => {
@@ -131,8 +138,9 @@
                    let list = document.querySelector("#list");
 
 
-                   
+                   let index = object[i]["id"];
 
+                   let nameDB = object[i]["name"]["english"];
                      
                     
                             fetch('https://pokeapi.co/api/v2/pokemon?limit=10000')
@@ -175,6 +183,8 @@
                             let sentence =  poki["abilities"][0]["ability"]["name"];
                             sentence = sentence.toUpperCase();
                              document.querySelector("#best-move").innerText = "Skill: "+  sentence;
+                             let group = {index: index , name: nameDB, image: image, skill: poki["abilities"][0]["ability"]["name"]};
+                             db.Poke.bulkPut([group]);
                             
                         })
                     i = pokemon.length;
